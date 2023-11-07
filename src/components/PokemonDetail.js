@@ -1,24 +1,23 @@
 import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import { useSelector, useDispatch } from 'react-redux';
-import { getOnePokemon } from '../store/pokemon';
+import { useDispatch, useSelector } from 'react-redux';
 import PokemonItems from './PokemonItems';
 import EditPokemonForm from './EditPokemonForm';
 import ItemForm from './ItemForm';
+import * as PokemonAPI from '../store/pokemon'
 
 const PokemonDetail = () => {
   const { pokemonId } = useParams();
   const pokemon = useSelector(state => state.pokemon[pokemonId]);
-  const dispatch = useDispatch();
   const [showEditPokeForm, setShowEditPokeForm] = useState(false);
   const [editItemId, setEditItemId] = useState(null);
-  const [showAddForm, setShowAddForm] = useState(false);
+  const dispatch = useDispatch();
 
   useEffect(() => {
-    dispatch(getOnePokemon(pokemonId));
     setShowEditPokeForm(false);
     setEditItemId(null);
-  }, [dispatch, pokemonId]);
+    dispatch(PokemonAPI.getSinglePokemon(pokemonId));
+  }, [pokemonId]);
 
   if (!pokemon || !pokemon.moves) {
     return null;
@@ -26,15 +25,7 @@ const PokemonDetail = () => {
 
   let content = null;
 
-  if (showAddForm) {
-    content = (
-      <ItemForm 
-        pokemonId={pokemon.id} 
-        itemId={-1} 
-        hideForm={() => setShowAddForm(false)} 
-      />
-    );
-  } else if (editItemId) {
+  if (editItemId) {
     content = (
       <ItemForm 
         itemId={editItemId} 
@@ -79,9 +70,7 @@ const PokemonDetail = () => {
         <div>
           <h2>
             Items 
-            {pokemon.captured && (
-              <button onClick={() => setShowAddForm(true)}> + </button>
-            )}
+            <button> + </button>
           </h2>
           <table>
             <thead>

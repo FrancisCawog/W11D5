@@ -1,5 +1,4 @@
 import { LOAD_ITEMS, REMOVE_ITEM, ADD_ITEM } from './items';
-import { ValidationError } from '../utils/validationError';
 
 const LOAD = 'pokemon/LOAD';
 const LOAD_TYPES = 'pokemon/LOAD_TYPES';
@@ -38,71 +37,23 @@ export const getPokemonTypes = () => async dispatch => {
   }
 };
 
-export const getOnePokemon = id => async dispatch => {
-  const response = await fetch(`/api/pokemon/${id}`);
-
-  if (response.ok) {
-    const pokemon = await response.json();
-    dispatch(addOnePokemon(pokemon));
-  }
-};
-
-export const createPokemon = data => async dispatch => {
-  try {
-    const response = await fetch(`/api/pokemon`, {
-      method: 'post',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(data)
-    });
-
-    if (!response.ok) {
-      let error;
-      if (response.status === 422) {
-        error = await response.json();
-        throw new ValidationError(error.errors, response.statusText);
-      } 
-      else {
-        let errorJSON;
-        error = await response.text();
-        try {
-          // Check if the error is JSON, i.e., from the Pokemon server. If so,
-          // don't throw error yet or it will be caught by the following catch
-          errorJSON = JSON.parse(error);
-        }
-        catch {
-          // Case if server could not be reached
-          throw new Error(error);
-        }
-        throw new Error(`${errorJSON.title}: ${errorJSON.message}`);
-      }
-    } 
-
-    const pokemon = await response.json();
-    dispatch(addOnePokemon(pokemon));
-    return pokemon;
-  } 
-  catch (error) {
-    throw error;
-  }
-};
-
-export const updatePokemon = data => async dispatch => {
-  const response = await fetch(`/api/pokemon/${data.id}`, {
-    method: 'put',
+export const createPokemon = (pokemon) => async dispatch => {
+  const response = await fetch('/api/pokemon', {
+    method: 'POST',
+    body: JSON.stringify(pokemon),
     headers: {
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify(data)
-  });
-  
-  if (response.ok) {
-    const pokemon = await response.json();
-    dispatch(addOnePokemon(pokemon));
-    return pokemon;
+      'Content-Type': 'application/json',
+      'Accept': 'application/json'
+    }});
+
+  if(response.ok){
+    const data = await response.json();
+    dispatch(addOnePokemon(data))
+  }else{
+    const data = await response.json();
+    console.log(data)
   }
-};
+}
 
 const initialState = {
   list: [],

@@ -1,12 +1,11 @@
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useHistory } from 'react-router-dom';
-import { createPokemon, getPokemonTypes } from '../store/pokemon';
-import { ValidationError } from '../utils/validationError';
-import ErrorMessage from './ErrorMessage';
+import { getPokemonTypes } from '../store/pokemon';
+import * as PokemonAPI from '../store/pokemon'
+
 
 const CreatePokemonForm = ({ hideForm }) => {
-  const [errorMessages, setErrorMessages] = useState({});
   const pokeTypes = useSelector(state => state.pokemon.types);
   const dispatch = useDispatch();
   const history = useHistory();
@@ -53,17 +52,10 @@ const CreatePokemonForm = ({ hideForm }) => {
       moves: [move1, move2]
     };
 
+    dispatch(PokemonAPI.createPokemon(payload));
+
     let createdPokemon;
-    try {
-      createdPokemon = await dispatch(createPokemon(payload));
-    } catch (error) {
-      if (error instanceof ValidationError) setErrorMessages(error.errors);
-      // If error is not a ValidationError, add slice at the end to remove extra
-      // "Error: "
-      else setErrorMessages({ overall: error.toString().slice(7) })
-    }
     if (createdPokemon) {
-      setErrorMessages({});
       history.push(`/pokemon/${createdPokemon.id}`);
       hideForm();
     }
@@ -71,13 +63,11 @@ const CreatePokemonForm = ({ hideForm }) => {
 
   const handleCancelClick = (e) => {
     e.preventDefault();
-    setErrorMessages({});
     hideForm();
   };
 
   return (
     <section className="new-form-holder centered middled">
-      <ErrorMessage message={errorMessages.overall} />
       <form className="create-pokemon-form" onSubmit={handleSubmit}>
         <input
           type="number"
@@ -86,7 +76,6 @@ const CreatePokemonForm = ({ hideForm }) => {
           required
           value={number}
           onChange={updateNumber} />
-        <ErrorMessage label={"Number"} message={errorMessages.number} />
         <input
           type="number"
           placeholder="Attack"
@@ -95,7 +84,6 @@ const CreatePokemonForm = ({ hideForm }) => {
           required
           value={attack}
           onChange={updateAttack} />
-        <ErrorMessage label={"Attack"} message={errorMessages.attack} />
         <input
           type="number"
           placeholder="Defense"
@@ -104,19 +92,16 @@ const CreatePokemonForm = ({ hideForm }) => {
           required
           value={defense}
           onChange={updateDefense} />
-        <ErrorMessage label={"Defense"} message={errorMessages.defense} />
         <input
           type="text"
           placeholder="Image URL"
           value={imageUrl}
           onChange={updateImageUrl} />
-        <ErrorMessage label={"Image URL"} message={errorMessages.imageUrl} />
         <input
           type="text"
           placeholder="Name"
           value={name}
           onChange={updateName} />
-        <ErrorMessage label={"Name"} message={errorMessages.name} />
         <input
           type="text"
           placeholder="Move 1"
@@ -127,13 +112,11 @@ const CreatePokemonForm = ({ hideForm }) => {
           placeholder="Move 2"
           value={move2}
           onChange={updateMove2} />
-        <ErrorMessage label={"Moves"} message={errorMessages.moves} />
         <select onChange={updateType} value={type}>
           {pokeTypes.map(type =>
             <option key={type}>{type}</option>
           )}
         </select>
-        <ErrorMessage label={"Type"} message={errorMessages.type} />
         <button type="submit">Create new Pokemon</button>
         <button type="button" onClick={handleCancelClick}>Cancel</button>
       </form>

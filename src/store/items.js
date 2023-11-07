@@ -25,59 +25,6 @@ const remove = (itemId, pokemonId) => ({
   pokemonId
 });
 
-export const getItems = (pokemonId) => async (dispatch) => {
-  const response = await fetch(`/api/pokemon/${pokemonId}/items`);
-
-  if (response.ok) {
-    const items = await response.json();
-    dispatch(load(items, pokemonId));
-  }
-};
-
-export const updateItem = data => async dispatch => {
-  const response = await fetch(`/api/items/${data.id}`, {
-    method: 'put',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify(data)
-  });
-
-  if (response.ok) {
-    const item = await response.json();
-    dispatch(update(item));
-    return item;
-  }
-};
-
-export const deleteItem = (itemId, pokemonId) => async dispatch => {
-  const response = await fetch(`/api/items/${itemId}`, {
-    method: 'delete',
-  });
-
-  if (response.ok) {
-    const { id: deletedItemId } = await response.json();
-    dispatch(remove(deletedItemId, pokemonId));
-    return deletedItemId;
-  }
-};
-
-export const createItem = (data, pokemonId) => async dispatch => {
-  const response = await fetch(`/api/pokemon/${pokemonId}/items`, {
-    method: 'post',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify(data)
-  });
-
-  if (response.ok) {
-    const item = await response.json();
-    dispatch(add(item));
-    return item;
-  }
-};
-
 const initialState = {};
 
 const itemsReducer = (state = initialState, action) => {

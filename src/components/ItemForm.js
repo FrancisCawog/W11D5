@@ -1,18 +1,8 @@
 import { useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { updateItem, createItem } from '../store/items';
+import { useSelector } from 'react-redux';
 
-const ItemForm = ({ itemId, hideForm, pokemonId }) => {
+const ItemForm = ({ itemId, hideForm }) => {
   let item = useSelector(state => state.items[itemId]);
-  const isAdd = !item;
-  if (!item) {
-    item = {
-      name: "",
-      happiness: "",
-      price: ""
-    };
-  }
-  const dispatch = useDispatch();
 
   const [happiness, setHappiness] = useState(item.happiness);
   const [price, setPrice] = useState(item.price);
@@ -25,16 +15,14 @@ const ItemForm = ({ itemId, hideForm, pokemonId }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const payload = {
-      ...item,
-      name,
-      happiness,
-      price
-    };
-
-    const returnedItem = isAdd 
-      ? await dispatch(createItem(payload, pokemonId)) 
-      : await dispatch(updateItem(payload));
+    // const payload = {
+    //   ...item,
+    //   name,
+    //   happiness,
+    //   price
+    // };
+    
+    let returnedItem;
     if (returnedItem) {
       hideForm();
     }
@@ -53,7 +41,6 @@ const ItemForm = ({ itemId, hideForm, pokemonId }) => {
           placeholder="Name"
           value={name}
           onChange={updateName}
-          autoFocus={isAdd ? "autoFocus" : undefined}
         />
         <input
           type="number"
@@ -71,7 +58,7 @@ const ItemForm = ({ itemId, hideForm, pokemonId }) => {
           value={price}
           onChange={updatePrice}
         />
-        <button type="submit">{isAdd ? "Add" : "Update"} Item</button>
+        <button type="submit">Update Item</button>
         <button type="button" onClick={handleCancelClick}>Cancel</button>
       </form>
     </section>
